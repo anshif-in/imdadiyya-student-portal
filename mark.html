@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Report Card</title>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  text-align:center;
+}
+table{
+  margin:auto;
+  border-collapse: collapse;
+  width: 80%;
+}
+th, td{
+  padding:8px;
+}
+th{
+  background:#f2f2f2;
+}
+@media print {
+  button { display:none; }
+}
+</style>
+</head>
+
+<body>
+
+<h2>Report Card</h2>
+<div id="card">Loading...</div><br>
+<button onclick="window.print()">📄 Download / Print</button>
+
+<script>
+
+const roll = new URLSearchParams(window.location.search).get("roll");
+
+if(!roll){
+  document.getElementById("card").innerHTML = "Invalid Roll Number";
+} else {
+
+fetch("https://script.google.com/macros/s/AKfycbxHP4iDDxN-Nr36ouoiwRpxucHKZ5PBkloLaLH9bX28NuqJp7wfrNmceSqMjtIDcENQ/exec?roll=" + roll)
+
+.then(res => res.json())
+.then(data => {
+
+  if(!data || !data.name){
+    document.getElementById("card").innerHTML = "Result Not Found";
+    return;
+  }
+
+  let html = `
+  <h3>${data.name}</h3>
+  <p><b>Class:</b> ${data.class} - ${data.division}</p>
+  <p><b>Rank:</b> ${data.rank}</p>
+  <p><b>Result:</b> ${data.result}</p>
+`;
+
+
+  html += "<table border='1'>";
+  html += "<tr><th>Subject</th><th>Marks</th></tr>";
+
+  for(let s in data.subjects){
+    html += `<tr><td>${s}</td><td>${data.subjects[s]}</td></tr>`;
+  }
+
+  html += `<tr><th>Total</th><th>${data.total}</th></tr>`;
+  html += "</table><br>";
+
+  // QR Code
+ html += `
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${
+  encodeURIComponent(
+    'Roll:'+data.roll+
+    ', Class:'+data.class+
+    ', Division:'+data.division+
+    ', Rank:'+data.rank+
+    ', Result:'+data.result
+  )
+}">
+`;
+
+
+  document.getElementById('card').innerHTML = html;
+})
+.catch(error=>{
+  console.error(error);
+  document.getElementById("card").innerHTML = "Server Error";
+});
+
+}
+
+</script>
+</body>
+</html>

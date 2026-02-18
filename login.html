@@ -1,0 +1,35 @@
+<script>
+function login() {
+  let roll = document.getElementById("roll").value;
+  let password = document.getElementById("password").value;
+  let studentClass = document.getElementById("class").value;
+  let division = document.getElementById("division").value;
+
+  fetch("https://script.google.com/macros/s/AKfycbxHP4iDDxN-Nr36ouoiwRpxucHKZ5PBkloLaLH9bX28NuqJp7wfrNmceSqMjtIDcENQ/exec", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      type: "login",
+      roll: roll,
+      password: password,
+      class: studentClass,
+      division: division
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      window.location.href = "report.html?roll=" + data.student.roll;
+    } else {
+      alert("Invalid Roll or Password");
+    }
+  })
+  .catch(error => {
+    console.error("Error:", error);
+    alert("Server Error. Check deployment settings.");
+  });
+}
+</script>
+
